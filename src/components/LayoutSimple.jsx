@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Outlet } from "react-router-dom";
+import { toast } from "react-toastify";
 import { setDarkModeVariables, setLightModeVariables } from "../utils/utils";
 import { useAuthState } from "../context/AuthContext";
 
@@ -11,9 +12,23 @@ import WalletIcon from "../assets/icons/WalletIcon";
 import twitterIcon from "../assets/icons/twitter.svg";
 import mediumIcon from "../assets/icons/medium.svg";
 import telegramIcon from "../assets/icons/telegram.svg";
+import { SuccessMessage } from "./Notifications";
 
 function LayoutSimple() {
     const { authState, updateTheme } = useAuthState();
+    const toastRef = useRef();
+
+    const handleToastClose = () => {
+        toast.dismiss(toastRef.current);
+    };
+
+    const notifySuccess = () =>
+        (toastRef.current = toast(
+            <SuccessMessage
+                msg={"You are successfully logged out!"}
+                closeToast={handleToastClose}
+            />
+        ));
 
     useEffect(() => {
         if (authState.preferDark) {
@@ -39,7 +54,10 @@ function LayoutSimple() {
                         />
                     </div>
 
-                    <button className="d-btn d-btn-primary flex items-center gap-6">
+                    <button
+                        className="d-btn d-btn-primary flex items-center gap-6"
+                        onClick={notifySuccess}
+                    >
                         <WalletIcon viewBox="0 0 22 22" classes="icon-s" />
                         Connect Wallet
                     </button>
