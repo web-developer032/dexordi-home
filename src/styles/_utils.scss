@@ -46,6 +46,19 @@
     background-color: #eee !important;
 }
 
+.input {
+    background-color: transparent;
+    width: 100%;
+    font-size: $p-size;
+    padding: 2rem 3rem;
+    border-radius: 10rem;
+    border: 1px solid getColor(border);
+    outline: none;
+    &::placeholder {
+        color: #777;
+    }
+}
+
 .btn-actions {
     display: flex;
     justify-content: center;

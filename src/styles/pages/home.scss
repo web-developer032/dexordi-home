@@ -132,6 +132,17 @@
     @media only screen and (max-width: 650px) {
         .home__content {
             .home__details {
+                .info {
+                    .token {
+                        h3 {
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            max-width: 30rem; /* or any desired width */
+                            width: 100%;
+                        }
+                    }
+                }
                 .timer__container {
                     flex-direction: column;
                     .left {
@@ -139,6 +150,26 @@
                     }
                     .box {
                         .box-no {
+                        }
+                    }
+                }
+                .purchase__container {
+                    .input {
+                        margin-bottom: 4rem;
+                    }
+                    .trade__container {
+                        flex-direction: column;
+                        gap: 3rem;
+
+                        & > p {
+                            justify-self: center;
+                            align-self: center;
+                            transform: rotate(90deg);
+                            margin: 0;
+                        }
+                        .left,
+                        .right {
+                            width: 100%;
                         }
                     }
                 }

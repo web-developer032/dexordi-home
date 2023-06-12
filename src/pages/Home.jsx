@@ -100,9 +100,11 @@ function Home() {
                             <p className="mb-6 text-center">
                                 <span className="text-grey-d1">DexOrdi Price</span> : $0.025
                             </p>
-                            <h5 className="mb-6 text-center text-3xl mb-10">
-                                Please enter the ORDI amount you'd like to purchase
-                            </h5>
+                            <input
+                                type="text"
+                                className="mb-6 text-center text-3xl mb-10 input"
+                                placeholder={"Please enter the ORDI amount you'd like to purchase"}
+                            />
 
                             <section className="trade__container flex items-center gap-16">
                                 <div className="left">
