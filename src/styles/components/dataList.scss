@@ -168,16 +168,6 @@
     }
 }
 
-@media only screen and (max-width: 800px) {
-    .walletList__container {
-        .wallet__content {
-            top: 10rem;
-            right: 50%;
-            transform: translateX(50%);
-        }
-    }
-}
-
 @media only screen and (max-width: 500px) {
     .datalist__container {
         position: fixed;
