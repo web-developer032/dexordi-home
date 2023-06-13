@@ -47,6 +47,19 @@
     }
 }
 
+.d-btn-block {
+    color: getColor(text);
+    border: 1px solid getColor(border);
+    border-radius: 10px;
+    padding: 6px;
+    min-width: 70px;
+
+    &:hover {
+        // background-color: getColor(base);
+        color: getColor(text);
+    }
+}
+
 .d-btn-primary:disabled,
 .d-btn-primary.active:disabled,
 .d-btn:disabled {

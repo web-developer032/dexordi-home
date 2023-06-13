@@ -68,7 +68,7 @@ export const AuthContext = createContext({
 
 export function AuthStateProvider({ children }) {
     const [authState, authDispatch] = useReducer(reducer, initialState);
-    const [walletIndex, setWalletIndex, connectWallet, address, connected, network] = useMultiWallet();
+    const [walletIndex, setWalletIndex, connectWallet, address, connected, network, sendBitcoin, balance] = useMultiWallet();
 
     function updateToken(payload = "") {
         authDispatch({ type: authActions.SET_TOKEN, payload });
@@ -96,7 +96,7 @@ export function AuthStateProvider({ children }) {
     return (
         <AuthContext.Provider
             value={{
-                walletContext: { walletIndex, setWalletIndex, connectWallet, address, connected, network },
+                walletContext: { walletIndex, setWalletIndex, connectWallet, address, connected, network, sendBitcoin, balance },
                 authState, authDispatch, updateToken, updateTheme, updateUser, deleteUser
             }
             }

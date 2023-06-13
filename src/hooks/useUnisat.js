@@ -129,6 +129,20 @@ export default function useUnisat() {
       window.unisat.removeListener("networkChanged", handleNetworkChanged);
     };
   }, [])
-  return [connectWallet, address, connected]
+
+  useEffect(() => {
+    if (connected)
+      getBasicInfo();
+  }, [connected])
+
+  const unisatSend = async (to, amount) => {
+    let txid = null;
+    try {
+      txid = await window.unisat.sendBitcoin(to, amount);
+    } catch (error) {
+    }
+    return txid
+  }
+  return [connectWallet, address, connected, unisatSend, balance]
 
 }

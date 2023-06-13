@@ -53,8 +53,9 @@ export function useTime(startTime = moment.unix(1686664800), endTime = moment.un
     const current = moment.unix((moment() + deltaLocal) / 1000);
     // console.log('currentMome :>> ', deltaLocal, current.format());
 
-    const delta1 = startTime - (current);
+    let delta1 = startTime - (current);
     const delta2 = endTime - (current);
+    if (delta1 < 0) delta1 = delta2
     const duration1 = moment.duration(delta1)
     const duration2 = moment.duration(delta2)
     setDelta1(parseDuration(duration1));

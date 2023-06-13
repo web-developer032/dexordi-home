@@ -107,11 +107,11 @@ function LayoutSimple() {
 
             <Outlet />
 
-            {walletList && (
+            {walletList ? (
                 <section className="walletList__container backdrop__container">
                     <section className="wallet__content">
                         <header>
-                            <h3>Connect your wallet</h3>{" "}
+                            <h3>Connect your wallet</h3>
                             <button onClick={toggleWalletList}>
                                 <CancelIcon />
                             </button>
@@ -138,7 +138,7 @@ function LayoutSimple() {
                         </ul>
                     </section>
                 </section>
-            )}
+            ) : <></>}
 
             <footer className="lg:px-40 px-20 py-5 flex justify-between pb-16 simple-footer">
                 <div className="left flex gap-16 items-center">

@@ -14,15 +14,33 @@ import { useAuthState } from "../context/AuthContext";
 import WalletIcon from "../assets/icons/WalletIcon";
 import { validate, getAddressInfo } from 'bitcoin-address-validation';
 import useToast from "../hooks/useToast";
-import { BTCNETWORK, formatBTCNumber } from "../utils/constants";
+import { BTCNETWORK, factoryWalletAddress, formatBTCNumber } from "../utils/constants";
 import { useModalState } from "../context/ModalContext";
 import ReactPortal from "../components/ReactPortal";
+import axios from "axios";
+import { tokenTransferApi } from "../utils/apiRoutes";
+import useGetBalance from "../hooks/useGetBalance";
+
+const rateTexts = [{
+    title: 'Slow',
+    text1: 'About 10',
+    text2: 'minutes',
+}, {
+    title: 'Avg',
+    text1: 'About 30',
+    text2: 'minutes',
+}, {
+    title: 'Slow',
+    text1: 'About 1',
+    text2: 'hour',
+}
+]
 
 function Home() {
 
     const { walletContext } = useAuthState();
     const { messageApi } = useToast();
-    const { walletIndex, setWalletIndex, connectWallet, address, connected, network } = walletContext;
+    const { walletIndex, setWalletIndex, connectWallet, address, connected, network, sendBitcoin, balance } = walletContext;
     const [currnetTimestamp, delta1, delta2] = useTime();
     const [toggleDataList, setToggleDataList] = useState(false);
     const [toggleSteps, setToggleSteps] = useState(false);
@@ -38,6 +56,20 @@ function Home() {
     const [isLoading, setIsLoading] = useState(false);
 
     const { modalState, openModal, closeModal, addModal, removeModal } = useModalState();
+    const [feeRateIndex, setFeeRateIndex] = useState(1);
+    const [getBalance] = useGetBalance();
+    const [oxinBalance, setOxinBalance] = useState(0);
+    useEffect(() => {
+        const func = async () => {
+            const net = BTCNETWORK == 0 ? 'testnet' : 'mainnet';
+            if (validate(receiverAddress, net)) {
+                const bal = await getBalance('oxin', receiverAddress);
+                setOxinBalance(bal);
+            }
+            else setOxinAmount(0);
+        }
+        func();
+    }, [receiverAddress])
 
     useEffect(() => {
         setReceiverAddress(address)
@@ -101,8 +133,8 @@ function Home() {
         if (isLoading) return;
         setIsLoading(true);
         try {
-            checkConnect();
-            const tx_id = await window.unisat.sendBitcoin(factoryWalletAddress, bTCAmount * 1e8);
+            const tx_id = await sendBitcoin(factoryWalletAddress, bTCAmount * 1e8);
+            console.log('object');
             const body = {
                 fee_txid: tx_id,
                 sender_address: address,
@@ -116,7 +148,7 @@ function Home() {
             const res = await axios.post(tokenTransferApi, body);
             console.log('transferAPI===>', res);
         } catch (error) {
-
+            console.log(error);
         }
         closeModal();
         setIsLoading(false);
@@ -162,8 +194,20 @@ function Home() {
             {modalState.open && (
                 <ReactPortal>
                     <section className="modal__content">
-                        <h2>{`Are you sure to buy ${oxinAmount} oxin with ${bTCAmount} BTC?`}</h2>
-
+                        <h2 className="leading-normal">{`Are you sure to buy ${oxinAmount} oxin with ${bTCAmount} BTC?`}</h2>
+                        <div className="flex w-full justify-center mt-16 gap-8">
+                            {rateTexts.map((item, index) => (
+                                <button
+                                    className={`d-btn d-btn-block ${index == feeRateIndex && 'd-btn-primary'}`}
+                                    onClick={() => { setFeeRateIndex(index) }}
+                                    key={index}
+                                >
+                                    <div className="text-4xl py-2">{item.title}</div>
+                                    <div className="text-grey-d1">{item.text1}</div>
+                                    <div className="text-grey-d1">{item.text2}</div>
+                                </button>
+                            ))}
+                        </div>
                         <div className="btn-group">
                             <button
                                 className="d-btn d-btn-primary active"
@@ -266,7 +310,7 @@ function Home() {
                                     <div className="top flex items-center justify-between">
                                         <span className="text-grey-d1">From</span>
                                         <span>
-                                            <span className="text-grey-d1 mr-2">Balance:</span> 0
+                                            <span className="text-grey-d1 mr-2">Balance:</span> {balance / 1e8}
                                         </span>
                                     </div>
 
@@ -308,7 +352,7 @@ function Home() {
                                     <div className="top flex items-center justify-between">
                                         <span className="text-grey-d1">To</span>
                                         <span>
-                                            <span className="text-grey-d1 mr-2">Balance:</span> 0
+                                            <span className="text-grey-d1 mr-2">Balance:</span>{oxinBalance}
                                         </span>
                                     </div>
                                     <div className="bottom">
