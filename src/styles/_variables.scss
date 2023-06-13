@@ -24,7 +24,8 @@ $font-family: "League Spartan", sans-serif;
 $h1-size: 4.5rem;
 $h2-size: 3.5rem;
 $h3-size: 2.8rem;
-$p-size: 2rem; /* LINE HEIGHT IN PARA 3rem */
+$p-size: 2rem;
+/* LINE HEIGHT IN PARA 3rem */
 
 $border-radius: 15px;
 $border-color: #f0f0f0;
@@ -57,17 +58,23 @@ $colors-dark: (
 
 //converting scss variable into css variable
 :root {
-    @each $name, $color in $colors {
+
+    @each $name,
+    $color in $colors {
         --color-#{$name}: #{$color};
     }
+
     --theme: "light";
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        @each $name, $color in $colors-dark {
+
+        @each $name,
+        $color in $colors-dark {
             --color-#{$name}: #{$color};
         }
+
         --theme: "dark";
     }
 }

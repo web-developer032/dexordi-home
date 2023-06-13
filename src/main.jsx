@@ -6,12 +6,15 @@ import { AuthStateProvider } from "./context/AuthContext";
 import "./App.css";
 import "./styles/main.scss";
 import App from "./App";
+import { ModalStateProvider } from "./context/ModalContext";
 
 ReactDOM.render(
     <React.StrictMode>
         <BrowserRouter>
             <AuthStateProvider>
-                <App />
+                <ModalStateProvider>
+                    <App />
+                </ModalStateProvider>
             </AuthStateProvider>
         </BrowserRouter>
     </React.StrictMode>,

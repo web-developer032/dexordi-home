@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useReducer } from "react";
+import React, { createContext, useContext, useEffect, useReducer, useState } from "react";
+import useMultiWallet from "../hooks/useMultiWallet";
 
 const authActions = {
-    SET_TOKEN: "SET_TOKEN",
+    SET_THEME: "SET_THEME",
     UPDATE_THEME: "UPDATE_THEME",
     SET_USER: "SET_USER",
     DELETE_USER: "DELETE_USER",
@@ -17,13 +18,16 @@ const initialState = {
 
 const reducer = (state, { type, payload }) => {
     switch (type) {
-        case authActions.SET_TOKEN: {
+        case authActions.SET_THEME: {
+            console.log('SET_THEME', payload.preferDark);
+            localStorage.setItem('theme', payload.preferDark);
             return {
                 ...state,
-                token: payload,
+                preferDark: payload.preferDark,
             };
         }
         case authActions.UPDATE_THEME: {
+            localStorage.setItem('theme', !state.preferDark);
             return {
                 ...state,
                 preferDark: !state.preferDark,
@@ -50,16 +54,21 @@ const reducer = (state, { type, payload }) => {
 };
 
 export const AuthContext = createContext({
+    walletContext: {
+        walletIndex: 0,
+        setWalletIndex: () => { }
+    },
     authState: initialState,
-    authDispatch: () => {},
-    updateToken: () => {},
-    updateTheme: () => {},
-    updateUser: () => {},
-    deleteUser: () => {},
+    authDispatch: () => { },
+    updateToken: () => { },
+    updateTheme: () => { },
+    updateUser: () => { },
+    deleteUser: () => { },
 });
 
 export function AuthStateProvider({ children }) {
     const [authState, authDispatch] = useReducer(reducer, initialState);
+    const [walletIndex, setWalletIndex, connectWallet, address, connected, network] = useMultiWallet();
 
     function updateToken(payload = "") {
         authDispatch({ type: authActions.SET_TOKEN, payload });
@@ -77,9 +86,21 @@ export function AuthStateProvider({ children }) {
         authDispatch({ type: authActions.DELETE_USER });
     }
 
+    useEffect(() => {
+        const isdark = localStorage.getItem('theme');
+        console.log('isDark :>> ', isdark);
+        authDispatch({ type: authActions.SET_THEME, payload: { preferDark: isdark == 'true' } })
+    }, [])
+
+
     return (
         <AuthContext.Provider
-            value={{ authState, authDispatch, updateToken, updateTheme, updateUser, deleteUser }}
+            value={{
+                walletContext: { walletIndex, setWalletIndex, connectWallet, address, connected, network },
+                authState, authDispatch, updateToken, updateTheme, updateUser, deleteUser
+            }
+            }
+
         >
             {children}
         </AuthContext.Provider>

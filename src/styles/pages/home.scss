@@ -5,11 +5,13 @@
         .home__details {
             max-width: 110rem;
             margin: 0 auto;
+
             .info {
                 h3 {
                     color: $clr-primary;
                 }
-                & > div {
+
+                &>div {
                     border-radius: 10rem;
                     border: 1px solid getColor(border);
                     padding: 1rem 3rem;
@@ -29,6 +31,7 @@
                 p {
                     font-size: 2.6rem !important;
                 }
+
                 .box {
                     .box-no {
                         background-color: $clr-primary;
@@ -42,6 +45,7 @@
                         line-height: 1;
                         margin-bottom: 0.5rem;
                     }
+
                     span {
                         font-size: 2rem;
                     }
@@ -54,13 +58,15 @@
                 border-radius: $border-radius;
 
                 .trade__container {
-                    & > div {
+                    &>div {
                         flex: 1;
+
                         .top {
                             margin-bottom: 1rem;
                             padding: 0 1rem;
                             font-size: 1.8rem;
                         }
+
                         .bottom {
                             display: flex;
                             align-items: center;
@@ -71,11 +77,12 @@
                             border-radius: 10rem;
                             border: 1px solid getColor(border);
 
-                            & > input {
+                            &>input {
                                 background-color: transparent;
-                                width: 5rem;
+                                width: 100%;
                                 font-size: $p-size;
                             }
+
                             .coin__list {
                                 position: relative;
 
@@ -114,14 +121,17 @@
 
         h3 {
             font-weight: 300 !important;
+
             span {
                 font-weight: 700 !important;
                 margin-right: 2rem;
             }
         }
-        & > h3 {
+
+        &>h3 {
             margin-top: 4rem;
         }
+
         li {
             &:not(:last-child) {
                 margin-bottom: 1rem;
@@ -138,35 +148,41 @@
                             white-space: nowrap;
                             overflow: hidden;
                             text-overflow: ellipsis;
-                            max-width: 30rem; /* or any desired width */
+                            max-width: 30rem;
+                            /* or any desired width */
                             width: 100%;
                         }
                     }
                 }
+
                 .timer__container {
                     flex-direction: column;
+
                     .left {
                         flex-direction: column-reverse;
                     }
+
                     .box {
-                        .box-no {
-                        }
+                        .box-no {}
                     }
                 }
+
                 .purchase__container {
                     .input {
                         margin-bottom: 4rem;
                     }
+
                     .trade__container {
                         flex-direction: column;
                         gap: 3rem;
 
-                        & > p {
+                        &>p {
                             justify-self: center;
                             align-self: center;
                             transform: rotate(90deg);
                             margin: 0;
                         }
+
                         .left,
                         .right {
                             width: 100%;

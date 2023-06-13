@@ -21,27 +21,29 @@ import { SuccessMessage } from "./Notifications";
 
 const walletOptions = [
     {
-        icon: okxWalletIcon,
+        icon: unisatWalletIcon,
         value: 1,
-        label: "OKX Wallet",
+        label: "Unisat Wallet",
         label2: "Support Bitcoin Wallet",
     },
     {
-        icon: unisatWalletIcon,
+        icon: okxWalletIcon,
         value: 2,
-        label: "Unisat Wallet",
+        label: "Xverse Wallet",
         label2: "Support Bitcoin Wallet",
     },
     {
         icon: metamaskWalletIcon,
         value: 3,
-        label: "MetaMask Wallet",
+        label: "Hiro Wallet",
     },
 ];
 
 function LayoutSimple() {
     const { authState, updateTheme } = useAuthState();
-    const [walletList, setWalletList] = useState(false);
+    const { walletContext } = useAuthState();
+    const { walletIndex, setWalletIndex, connectWallet, address, connected } = walletContext;
+    const [walletList, setWalletList] = useState(0);
     const toastRef = useRef();
 
     const handleToastClose = () => {
@@ -49,12 +51,12 @@ function LayoutSimple() {
     };
 
     const notifySuccess = () =>
-        (toastRef.current = toast(
-            <SuccessMessage
-                msg={"You are successfully logged out!"}
-                closeToast={handleToastClose}
-            />
-        ));
+    (toastRef.current = toast(
+        <SuccessMessage
+            msg={"You are successfully logged out!"}
+            closeToast={handleToastClose}
+        />
+    ));
 
     const toggleWalletList = () => {
         setWalletList((prevState) => !prevState);
@@ -67,6 +69,14 @@ function LayoutSimple() {
             setLightModeVariables();
         }
     }, [authState.preferDark]);
+
+    const handleWalletSelect = async (index) => {
+        const result = await connectWallet(index)
+        if (result) {
+            setWalletIndex(index)
+            toggleWalletList();
+        }
+    }
 
     return (
         <>
@@ -90,7 +100,7 @@ function LayoutSimple() {
                         onClick={toggleWalletList}
                     >
                         <WalletIcon viewBox="0 0 22 22" classes="icon-s" />
-                        Connect Wallet
+                        {connected ? address?.slice(0, 5) + '...' + address?.slice(-6) : 'Connect Wallet'}
                     </button>
                 </section>
             </header>
@@ -108,13 +118,13 @@ function LayoutSimple() {
                         </header>
 
                         <ul>
-                            {walletOptions.map((item) => {
+                            {walletOptions.map((item, index) => {
                                 return (
                                     <li
-                                        className={`${
-                                            item.value === authState.wallet ? "active" : ""
-                                        }`}
+                                        className={`cursor-pointer ${index === walletIndex ? "active" : ""
+                                            }`}
                                         key={item.label}
+                                        onClick={() => handleWalletSelect(index)}
                                     >
                                         <div>
                                             <h3>{item.label}</h3>

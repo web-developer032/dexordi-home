@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import CopyIcon from "../assets/icons/CopyIcon";
 import InfoIcon from "../assets/icons/InfoIcon";
@@ -9,14 +9,39 @@ import ArrowDown from "../assets/icons/ArrowDown";
 import DataList from "../components/DataList";
 import { searchOptions } from "../assets/data";
 import CancelIcon from "../assets/icons/CancelIcon";
+import { useTime } from "../hooks/useTime";
+import { useAuthState } from "../context/AuthContext";
+import WalletIcon from "../assets/icons/WalletIcon";
+import { validate, getAddressInfo } from 'bitcoin-address-validation';
+import useToast from "../hooks/useToast";
+import { BTCNETWORK, formatBTCNumber } from "../utils/constants";
+import { useModalState } from "../context/ModalContext";
+import ReactPortal from "../components/ReactPortal";
 
 function Home() {
+
+    const { walletContext } = useAuthState();
+    const { messageApi } = useToast();
+    const { walletIndex, setWalletIndex, connectWallet, address, connected, network } = walletContext;
+    const [currnetTimestamp, delta1, delta2] = useTime();
     const [toggleDataList, setToggleDataList] = useState(false);
     const [toggleSteps, setToggleSteps] = useState(false);
     const [selectedOption, setSelectedOption] = useState({
         value: "BTC",
         icon: bitCoinIcon,
     });
+
+    const [receiverAddress, setReceiverAddress] = useState('');
+    const [bTCAmount, setBTCAmount] = useState('');
+    const [oxinAmount, setOxinAmount] = useState('');
+    const [isMAX, setIsMAX] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const { modalState, openModal, closeModal, addModal, removeModal } = useModalState();
+
+    useEffect(() => {
+        setReceiverAddress(address)
+    }, [address])
 
     const handleDataListBlur = (e) => {
         e.stopPropagation();
@@ -30,8 +55,130 @@ function Home() {
         setToggleDataList(!toggleDataList);
     };
 
+    const ConnectBtn = () => (
+        <button
+            className="d-btn d-btn-primary active flex items-center gap-8 text-4xl mx-auto"
+            onClick={connectWallet}
+        >
+            <WalletIcon viewBox="0 0 22 22" classes="icon" />
+            Connect Wallet
+        </button>
+    )
+
+    const PurchaseBtn = () => (
+        <button
+            className="d-btn d-btn-primary active flex items-center gap-8 text-4xl mx-auto"
+            onClick={handlePurchaseBtn}
+        >
+            Purchase Now <DblArrow />
+        </button>
+    )
+
+    const validateInput = () => {
+        const net = BTCNETWORK == 0 ? 'testnet' : 'mainnet';
+
+        if (!validate(receiverAddress, net)) {
+            messageApi.notifyWarning('Invalid Recipient  address!');
+            return false;
+        }
+
+        if (bTCAmount == '' || oxinAmount == 0) {
+            messageApi.notifyWarning('Please input token amount to buy.');
+            return false;
+        }
+
+        return true;
+    }
+
+    const handlePurchaseBtn = () => {
+
+        if (validateInput()) {
+            openModal()
+        }
+    }
+
+    const handlePurchase = async () => {
+        if (isLoading) return;
+        setIsLoading(true);
+        try {
+            checkConnect();
+            const tx_id = await window.unisat.sendBitcoin(factoryWalletAddress, bTCAmount * 1e8);
+            const body = {
+                fee_txid: tx_id,
+                sender_address: address,
+                token_owner_address: address,
+                token_receive_address: receiverAddress,
+                fee_rate: 1,
+                btc_amount: bTCAmount * 1e8,
+                tokenAmount: oxinAmount,
+                token: 'oxin'
+            }
+            const res = await axios.post(tokenTransferApi, body);
+            console.log('transferAPI===>', res);
+        } catch (error) {
+
+        }
+        closeModal();
+        setIsLoading(false);
+    }
+
+    const rate = 1 / 0.000007;
+    const rateReverse = 0.000007;
+    const maxOxin = 0.01400000 / rateReverse;
+
+    const handleBTCChange = (e) => {
+        let value = e.target.value.trim().replace(/\s+/g, '');
+        if (!isNaN(value)) {
+            if (value < 0) value = -value;
+            const tokenAmount = Math.floor(value * rate);
+            if (tokenAmount < maxOxin) {
+                setBTCAmount(value);
+                setOxinAmount(tokenAmount)
+            } else {
+                setOxinAmount(maxOxin)
+
+                setBTCAmount(Math.ceil(1e8 * maxOxin / rate) / 1e8)
+            }
+        }
+
+    }
+
+    const handleOxinChange = (e) => {
+        let value = Number(e.target.value);
+        if (isNaN(value)) {
+            setOxinAmount(0)
+            setBTCAmount(0)
+        } else {
+            value = Math.floor(value)
+            if (value >= maxOxin) value = maxOxin;
+            setOxinAmount(value)
+            setBTCAmount(formatBTCNumber(Math.ceil(1e8 * value * rateReverse) / 1e8))
+
+        }
+    }
+
     return (
         <>
+            {modalState.open && (
+                <ReactPortal>
+                    <section className="modal__content">
+                        <h2>{`Are you sure to buy ${oxinAmount} oxin with ${bTCAmount} BTC?`}</h2>
+
+                        <div className="btn-group">
+                            <button
+                                className="d-btn d-btn-primary active"
+                                onClick={handlePurchase}
+                            >
+                                {isLoading && <span className="loader-animation"></span>}
+                                Yes
+                            </button>
+                            <button className="d-btn d-btn-outline" onClick={() => { closeModal(); setIsLoading(false) }}>
+                                No
+                            </button>
+                        </div>
+                    </section>
+                </ReactPortal>
+            )}
             <section className="home__container">
                 <section className="home__content">
                     <h1 className="text-center mb-5">Welcome to the DexOrdi Presale</h1>
@@ -77,19 +224,19 @@ function Home() {
                                 </p>
                                 <div className="counter flex gap-7 items-center text-center">
                                     <div className="box">
-                                        <div className="box-no">26</div>
+                                        <div className="box-no">{delta1?.days}</div>
                                         <span>Days</span>
                                     </div>
                                     <div className="box">
-                                        <div className="box-no">08</div>
+                                        <div className="box-no">{delta1?.hours}</div>
                                         <span>Hours</span>
                                     </div>
                                     <div className="box">
-                                        <div className="box-no">17</div>
+                                        <div className="box-no">{delta1?.minutes}</div>
                                         <span>Minutes</span>
                                     </div>
                                     <div className="box">
-                                        <div className="box-no">59</div>
+                                        <div className="box-no">{delta1?.seconds}</div>
                                         <span>Seconds</span>
                                     </div>
                                 </div>
@@ -98,14 +245,22 @@ function Home() {
 
                         <section className="purchase__container mb-10 blur-glass-effect">
                             <p className="mb-6 text-center">
-                                <span className="text-grey-d1">DexOrdi Price</span> : $0.025
+                                <span className="text-grey-d1">Recipient address</span>
                             </p>
-                            <input
-                                type="text"
-                                className="mb-6 text-center text-3xl mb-10 input"
-                                placeholder={"Please enter the ORDI amount you'd like to purchase"}
-                            />
-
+                            <div className='flex w-full justify-center'>
+                                <div className="flex justify-center w-full">
+                                    <input
+                                        value={receiverAddress}
+                                        onChange={(e) => { setReceiverAddress(e.target.value) }}
+                                        className="mb-6 text-center text-3xl input"
+                                        placeholder="Please input the recipient address."
+                                        type="text"
+                                        autoComplete="off"
+                                        name="from"
+                                        id="from"
+                                    />
+                                </div>
+                            </div>
                             <section className="trade__container flex items-center gap-16">
                                 <div className="left">
                                     <div className="top flex items-center justify-between">
@@ -114,17 +269,19 @@ function Home() {
                                             <span className="text-grey-d1 mr-2">Balance:</span> 0
                                         </span>
                                     </div>
+
                                     <div className="bottom">
                                         <input
-                                            type="number"
+                                            type="text"
                                             name="from"
                                             id="from"
-                                            placeholder="100"
-                                            defaultValue={100}
+                                            placeholder="Please input the recipient address."
+                                            value={bTCAmount}
+                                            onChange={handleBTCChange}
+                                            autoComplete="off"
                                         />
-                                        <div className="flex items-center">
-                                            <span className="text-grey-d1 mr-4 text-3xl">MAX</span>
-
+                                        <div className="flex items-center p-1">
+                                            {isMAX && <span className="text-grey-d1 mr-4 text-3xl">MAX</span>}
                                             <div className="coin__list">
                                                 <button
                                                     className="flex items-center gap-3"
@@ -138,14 +295,6 @@ function Home() {
                                                     <p className="mr-6">{selectedOption.value}</p>
                                                     <ArrowDown />
                                                 </button>
-
-                                                {toggleDataList && (
-                                                    <DataList
-                                                        options={searchOptions}
-                                                        handleBlur={handleDataListBlur}
-                                                        handleOptionClick={setSelectedOption}
-                                                    />
-                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -167,8 +316,11 @@ function Home() {
                                             type="number"
                                             name="from"
                                             id="from"
-                                            placeholder="100"
-                                            defaultValue={100}
+                                            placeholder="Please input token amount to buy."
+                                            value={oxinAmount}
+                                            onChange={handleOxinChange}
+                                            autoComplete="off"
+                                            min={0}
                                         />
                                         <div className="flex items-center gap-4">
                                             <img
@@ -176,16 +328,16 @@ function Home() {
                                                 alt="bitcoin"
                                                 className="icon"
                                             />
-                                            <p>Ordi</p>
+                                            <p className="pr-7">oxin</p>
                                         </div>
                                     </div>
                                 </div>
                             </section>
                         </section>
 
-                        <button className="d-btn d-btn-primary flex items-center gap-8 text-4xl mx-auto">
-                            Purchase Now <DblArrow classes="icon-xs" />
-                        </button>
+                        {
+                            connected ? <PurchaseBtn /> : <ConnectBtn />
+                        }
                     </section>
                 </section>
 
@@ -247,7 +399,10 @@ function Home() {
                         </div>
                     </section>
                 )}
-            </section>
+            </section >
+            {modalState.addModalContainer && (
+                <section className="modal__container backdrop__container" id="modal" />
+            )}
         </>
     );
 }

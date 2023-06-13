@@ -1,11 +1,17 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
+import { toast } from "react-toastify";
 
 import CheckIcon from "../assets/icons/CheckIcon";
 import CloseIcon from "../assets/icons/CloseIcon";
 import CancelIcon from "../assets/icons/CancelIcon";
 import WarningIcon from "../assets/icons/WarningIcon";
 
-export function SuccessMessage({ msg, closeToast }) {
+export function SuccessMessage({ msg = '', closeToast, timeout = 3 }) {
+    useEffect(() => {
+        setTimeout(() => {
+            closeToast();
+        }, timeout * 1000);
+    })
     return (
         <MessageContainer type="success">
             <div className="msg__icon">
@@ -19,7 +25,12 @@ export function SuccessMessage({ msg, closeToast }) {
     );
 }
 
-export function WarningMessage({ msg, closeToast }) {
+export function WarningMessage({ msg = '', closeToast, timeout = 3 }) {
+    useEffect(() => {
+        setTimeout(() => {
+            closeToast();
+        }, timeout * 1000);
+    })
     return (
         <MessageContainer type="warning">
             <div className="msg__icon">
@@ -33,7 +44,12 @@ export function WarningMessage({ msg, closeToast }) {
     );
 }
 
-export function FailedMessage({ msg, closeToast }) {
+export function FailedMessage({ msg = '', closeToast, timeout = 3 }) {
+    useEffect(() => {
+        setTimeout(() => {
+            closeToast();
+        }, timeout * 1000);
+    })
     return (
         <MessageContainer type="failed">
             <div className="msg__icon">

@@ -2,7 +2,6 @@
 .Toastify__toast-body,
 .Toastify__toast {
     padding: 0 !important;
-    margin: 0 !important;
 }
 
 .Toastify__toast-container {
@@ -10,6 +9,7 @@
     top: 14rem !important;
     right: 10rem !important;
 }
+
 .Toastify__toast,
 .Toastify__toast-body {
     border-radius: 1rem !important;
@@ -17,16 +17,20 @@
     height: max-content !important;
     min-height: max-content !important;
 }
+
 .Toastify__close-button {
     display: none;
 }
+
 .msg__container {
     &.success {
         --main-clr: #4cbd7a;
     }
+
     &.warning {
         --main-clr: #ffba0a;
     }
+
     &.failed {
         --main-clr: #ff783f;
     }
@@ -52,6 +56,7 @@
             fill: $clr-white !important;
         }
     }
+
     .msg__text {
         padding: 2rem 3rem;
         padding-right: 10rem;
@@ -61,6 +66,7 @@
         display: flex;
         align-items: center;
     }
+
     .msg__icon-close {
         position: absolute;
         top: 50%;
@@ -100,6 +106,7 @@
         .msg__icon {
             padding: 1rem 1.5rem;
         }
+
         .msg__text {
             padding: 1rem 2rem;
             padding-right: 7rem;
